@@ -58,7 +58,7 @@ Die >> printOn: aStream [
 { #category : #'rolling dice' }
 Die >> roll [
 
-	^ numberProvider nextInt: self sides
+	^ numberProvider nextInteger: self sides
 ]
 
 { #category : #'private - accessing' }

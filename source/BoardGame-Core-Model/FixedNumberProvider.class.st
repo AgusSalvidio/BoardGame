@@ -22,7 +22,7 @@ FixedNumberProvider >> initializeWorkingWith: aFixedNumberCollection [
 ]
 
 { #category : #accessing }
-FixedNumberProvider >> nextInt: aNumberOfSides [
+FixedNumberProvider >> nextInteger: aNumberOfSides [
 
 	|result|
 	
