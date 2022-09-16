@@ -1,7 +1,7 @@
 Class {
 	#name : #DieTest,
 	#superclass : #TestCase,
-	#category : #'BoardGame-Core-Tests'
+	#category : #'BoardGame-Core-Model-Tests'
 }
 
 { #category : #tests }
