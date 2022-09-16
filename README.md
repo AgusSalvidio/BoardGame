@@ -1,6 +1,6 @@
 # BoardGame
 
-![Logo](assets/logo.png)
+![Logo](assets/logos/logo.png)
 
 A simple board game for training in ST.
 
