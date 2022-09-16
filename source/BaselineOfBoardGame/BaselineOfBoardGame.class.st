@@ -49,7 +49,7 @@ BaselineOfBoardGame >> coreModelPackage [
 
 	^ self
 		  packageNamed: 'BoardGame-Core-Model'
-		  requiring: #('Buoy' 'BoardGame-Sum-Model' 'BoardGame-SortingCriterion-Model')
+		  requiring: #('BoardGame-Sum-Model' 'BoardGame-SortingCriterion-Model')
 ]
 
 { #category : #'private - test package accessing' }
@@ -89,6 +89,8 @@ BaselineOfBoardGame >> modelPackages [
 	^ OrderedCollection 
 		with: self coreModelPackage
 		with: self tileModelPackage
+		with: self sumModelPackage
+		with: self sortingCriterionModelPackage
 ]
 
 { #category : #'private - packages set up' }
@@ -166,12 +168,28 @@ BaselineOfBoardGame >> setUpPackagesIn: aSpec [
 		self configure: package asPackageIn: aSpec ]
 ]
 
+{ #category : #'private - model package accessing' }
+BaselineOfBoardGame >> sortingCriterionModelPackage [
+
+	^ self
+		  packageNamed: 'BoardGame-SortingCriterion-Model'
+		  requiring: 'BoardGame-Sum-Model'
+]
+
 { #category : #'private - test package accessing' }
 BaselineOfBoardGame >> sortingCriterionTestPackage [
 
 	^ self
 		  packageNamed: 'BoardGame-SortingCriterion-Model-Tests'
 		  requiring: 'BoardGame-SortingCriterion-Model'
+]
+
+{ #category : #'private - model package accessing' }
+BaselineOfBoardGame >> sumModelPackage [
+
+	^ self
+		  packageNamed: 'BoardGame-Sum-Model'
+		  requiring: 'Buoy'
 ]
 
 { #category : #'private - test package accessing' }
