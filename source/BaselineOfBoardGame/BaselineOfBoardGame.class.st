@@ -44,12 +44,12 @@ BaselineOfBoardGame >> configure: aPackage asPackageIn: aSpec [
 		with: [ aSpec requires: (self requirementNamesOf: aPackage) ]
 ]
 
-{ #category : #'private - test package accessing' }
+{ #category : #'private - model package accessing' }
 BaselineOfBoardGame >> coreModelPackage [
 
 	^ self
 		  packageNamed: 'BoardGame-Core-Model'
-		  requiring: #('Buoy')
+		  requiring: #('BoardGame-Sum-Model' 'BoardGame-SortingCriterion-Model')
 ]
 
 { #category : #'private - test package accessing' }
@@ -86,7 +86,11 @@ BaselineOfBoardGame >> modelPackageNames [
 { #category : #'private - accessing' }
 BaselineOfBoardGame >> modelPackages [
 
-	^ OrderedCollection with: self coreModelPackage
+	^ OrderedCollection 
+		with: self coreModelPackage
+		with: self tileModelPackage
+		with: self sumModelPackage
+		with: self sortingCriterionModelPackage
 ]
 
 { #category : #'private - packages set up' }
@@ -164,6 +168,38 @@ BaselineOfBoardGame >> setUpPackagesIn: aSpec [
 		self configure: package asPackageIn: aSpec ]
 ]
 
+{ #category : #'private - model package accessing' }
+BaselineOfBoardGame >> sortingCriterionModelPackage [
+
+	^ self
+		  packageNamed: 'BoardGame-SortingCriterion-Model'
+		  requiring: 'BoardGame-Sum-Model'
+]
+
+{ #category : #'private - test package accessing' }
+BaselineOfBoardGame >> sortingCriterionTestPackage [
+
+	^ self
+		  packageNamed: 'BoardGame-SortingCriterion-Model-Tests'
+		  requiring: 'BoardGame-SortingCriterion-Model'
+]
+
+{ #category : #'private - model package accessing' }
+BaselineOfBoardGame >> sumModelPackage [
+
+	^ self
+		  packageNamed: 'BoardGame-Sum-Model'
+		  requiring: 'Buoy'
+]
+
+{ #category : #'private - test package accessing' }
+BaselineOfBoardGame >> sumTestPackage [
+
+	^ self
+		  packageNamed: 'BoardGame-Sum-Model-Tests'
+		  requiring: 'BoardGame-Sum-Model'
+]
+
 { #category : #'private - packages set up' }
 BaselineOfBoardGame >> testPackageNames [
 
@@ -174,5 +210,24 @@ BaselineOfBoardGame >> testPackageNames [
 BaselineOfBoardGame >> testPackages [
 
 	^ OrderedCollection 
-		  with: self coreTestPackage
+		with: self coreTestPackage
+		with: self tileTestPackage
+		with: self sumTestPackage
+		with: self sortingCriterionTestPackage
+]
+
+{ #category : #'private - model package accessing' }
+BaselineOfBoardGame >> tileModelPackage [
+
+	^ self
+		  packageNamed: 'BoardGame-Tile-Model'
+		  requiring: #('BoardGame-Core-Model')
+]
+
+{ #category : #'private - test package accessing' }
+BaselineOfBoardGame >> tileTestPackage [
+
+	^ self
+		  packageNamed: 'BoardGame-Tile-Model-Tests'
+		  requiring: 'BoardGame-Tile-Model'
 ]

@@ -16,6 +16,15 @@ DieTest >> testADieWithLessThanTwoSidesShouldRaiseException [
 ]
 
 { #category : #tests }
+DieTest >> testPrinting [
+
+	| die |
+	die := Die withSides: 6.
+
+	self assert: die asString equals: 'Die of 6 sides.'
+]
+
+{ #category : #tests }
 DieTest >> testRollDie [
 
 	| die |
