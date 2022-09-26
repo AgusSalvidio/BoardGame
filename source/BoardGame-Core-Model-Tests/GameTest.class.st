@@ -15,34 +15,45 @@ Class {
 }
 
 { #category : #'private - asserting' }
-GameTest >> assertCurrentLapsOf: aListOfPlayers from: aHistoricalPlayerPositions equalsTo: aListOfLapsNumber [
+GameTest >> assertCurrentLapsOf: aPlayerCollection in: aGame equalsTo: aLapNumberCollection [
 
-	aListOfPlayers
-		with: aListOfLapsNumber
-		do: [:aPlayer :aPlayerPositionNumber |
-			self
-				assert: (aHistoricalPlayerPositions at: aPlayer) last lapNumber
-				equals: aPlayerPositionNumber]
+	^ self
+		  for: aPlayerCollection
+		  in: aGame
+		  assert: [ :game :player | game currentLapOf: player ]
+		  equalsTo: aLapNumberCollection
 ]
 
 { #category : #'private - asserting' }
-GameTest >> assertCurrentPositionsOf: aListOfPlayers from: aHistoricalPlayerPositions equalsTo: aListOfPositions [
+GameTest >> assertCurrentPositionsOf: aPlayerCollection in: aGame equalsTo: aPositionCollection [
 
-	aListOfPlayers
-		with: aListOfPositions
-		do: [:aPlayer :aPlayerPositionNumber |
-			self
-				assert: (aHistoricalPlayerPositions at: aPlayer) last tileNumber
-				equals: aPlayerPositionNumber]
+	^ self
+		  for: aPlayerCollection
+		  in: aGame
+		  assert: [ :game :player | (game currentPlayerPositionOf: player) tileNumber]
+		  equalsTo: aPositionCollection
+
 ]
 
 { #category : #'private - asserting' }
-GameTest >> assertCurrentRankingsOf: aListOfPlayers from: aRankingList equalsTo: aListOfRankings [
+GameTest >> assertCurrentRankingsOf: aPlayerCollection in: aGame equalsTo: aRankingCollection [
 
-	aListOfPlayers
-		with: aListOfRankings
-		do: [:aPlayer :aPlayerRankingNumber |
-			self assert: (aRankingList at: aPlayer) equals: aPlayerRankingNumber]
+	^ self
+		  for: aPlayerCollection
+		  in: aGame
+		  assert: [ :game :player | game currentRankingOf: player ]
+		  equalsTo: aRankingCollection
+]
+
+{ #category : #'private - asserting' }
+GameTest >> for: aPlayerCollection in: aGame assert: aPerformBlock equalsTo: anObjectCollection [
+
+	^ aPlayerCollection
+		  with: anObjectCollection
+		  do: [ :aPlayer :aPlayerRankingNumber | 
+			  self
+				  assert: (aPerformBlock value: aGame value: aPlayer)
+				  equals: aPlayerRankingNumber ]
 ]
 
 { #category : #'private - generating' }
@@ -110,44 +121,34 @@ GameTest >> setUp [
 GameTest >> testBeingInFourthPlaceWhenTwoPlayersAreInSecondPlace [
 
 	| game dieFixedFourRolls |
+	dieFixedFourRolls := OrderedCollection with: (self generateDieOf: 6 using: #( 2 4 2 6 )).
 
-	dieFixedFourRolls := OrderedCollection with: (self generateDieOf: 6 using: #(2 4 2 6)).
-
-	game :=
-		Game
-			newGameFor: fourPlayers
-			playingWith: dieFixedFourRolls
-			and: boardWithTwentyTiles
-			withNumberOfLapsBeing: threelaps.
+	game := Game
+		        newGameFor: fourPlayers
+		        playingWith: dieFixedFourRolls
+		        and: boardWithTwentyTiles
+		        withNumberOfLapsBeing: threelaps.
 
 	self
-		assertCurrentPositionsOf: fourPlayers
-			from: game historicalPlayerPositions
-			equalsTo: #(1 1 1 1);
-		assertCurrentRankingsOf: fourPlayers from: game playersRanking equalsTo: #(1 1 1 1).
+		assertCurrentPositionsOf: fourPlayers in: game equalsTo: #( 1 1 1 1 );
+		assertCurrentRankingsOf: fourPlayers in: game	equalsTo: #( 1 1 1 1 ).
 
 	game rollDice. "Sale 2"
 
 	self
-		assertCurrentPositionsOf: fourPlayers
-			from: game historicalPlayerPositions
-			equalsTo: #(3 1 1 1);
-		assertCurrentRankingsOf: fourPlayers from: game playersRanking equalsTo: #(1 2 2 2).
+		assertCurrentPositionsOf: fourPlayers in: game equalsTo: #( 3 1 1 1 );
+		assertCurrentRankingsOf: fourPlayers	in: game	equalsTo: #( 1 2 2 2 ).
 
 	game rollDice. "Sale 4"
 
 	self
-		assertCurrentPositionsOf: fourPlayers
-			from: game historicalPlayerPositions
-			equalsTo: #(3 5 1 1);
-		assertCurrentRankingsOf: fourPlayers from: game playersRanking equalsTo: #(2 1 3 3).
+		assertCurrentPositionsOf: fourPlayers in: game equalsTo: #( 3 5 1 1 );
+		assertCurrentRankingsOf: fourPlayers	in: game	equalsTo: #( 2 1 3 3 ).
 
 	game rollDice. "Sale 2"
 	self
-		assertCurrentPositionsOf: fourPlayers
-			from: game historicalPlayerPositions
-			equalsTo: #(3 5 3 1);
-		assertCurrentRankingsOf: fourPlayers from: game playersRanking equalsTo: #(2 1 2 4)
+		assertCurrentPositionsOf: fourPlayers in: game equalsTo: #( 3 5 3 1 );
+		assertCurrentRankingsOf: fourPlayers	in: game	equalsTo: #( 2 1 2 4 )
 ]
 
 { #category : #tests }
@@ -162,11 +163,11 @@ GameTest >> testMovingAPlayerInGame [
 			and: boardWithTenTiles
 			withNumberOfLapsBeing: oneLap.
 
-	self assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(1 1).
+	self assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(1 1).
 
 	game rollDice. "Sale 2"
 
-	self assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(3 1)
+	self assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(3 1)
 ]
 
 { #category : #tests }
@@ -181,11 +182,11 @@ GameTest >> testMovingAPlayerWithMoreThanOneDie [
 			and: boardWithTenTiles
 			withNumberOfLapsBeing: oneLap.
 
-	self assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(1 1).
+	self assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(1 1).
 
 	game rollDice. "Sale 2"
 
-	self assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(3 1)
+	self assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(3 1)
 ]
 
 { #category : #tests }
@@ -200,19 +201,19 @@ GameTest >> testMovingMoreThanOnePlayerWithMoreThanOneDie [
 			and: boardWithTwentyTiles
 			withNumberOfLapsBeing: oneLap.
 
-	self assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(1 1).
+	self assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(1 1).
 
 	game rollDice. "Sale 2 en total"
 
-	self assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(3 1).
+	self assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(3 1).
 
 	game rollDice. "Sale 4 en total"
 
-	self assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(3 5).
+	self assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(3 5).
 
 	game rollDice. "Sale 6 en total"
 
-	self assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(9 5)
+	self assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(9 5)
 ]
 
 { #category : #tests }
@@ -227,19 +228,19 @@ GameTest >> testMovingMoreThanOnePlayerWithOneDie [
 			and: boardWithTwentyTiles
 			withNumberOfLapsBeing: oneLap.
 
-	self assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(1 1).
+	self assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(1 1).
 
 	game rollDice. "Sale 2"
 
-	self assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(3 1).
+	self assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(3 1).
 
 	game rollDice. "Sale 6"
 
-	self assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(3 7).
+	self assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(3 7).
 
 	game rollDice. "Sale 5"
 
-	self assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(8 7)
+	self assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(8 7)
 ]
 
 { #category : #tests }
@@ -255,20 +256,20 @@ GameTest >> testSecondPlayerBecomesFirst [
 			withNumberOfLapsBeing: threelaps.
 
 	self
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(1 1);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo: #(1 1).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(1 1);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo: #(1 1).
 
 	game rollDice. "Sale 2"
 
 	self
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(3 1);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo: #(1 2).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(3 1);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo: #(1 2).
 
 	game rollDice. "Sale 6"
 
 	self
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(3 7);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo: #(2 1)
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(3 7);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo: #(2 1)
 ]
 
 { #category : #tests }
@@ -304,15 +305,13 @@ GameTest >> testWhenAPlayerArrivesToTheEndOfTheBoardExceedingThreeTilesThenEndTh
 			and: boardWithTwentyTiles
 			withNumberOfLapsBeing: oneLap.
 
-	self assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(1 1).
+	self assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(1 1).
 
 	[game isInProgress] whileTrue: [game rollDice].
 
 	self
-		assertCurrentPositionsOf: twoPlayers
-			from: game historicalPlayerPositions
-			equalsTo: #(20 12);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo: #(1 2);
+		assertCurrentPositionsOf: twoPlayers	in: game	equalsTo: #(20 12);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo: #(1 2);
 		assert: game winnerOfTheGame equals: twoPlayers first
 ]
 
@@ -334,26 +333,26 @@ GameTest >> testWhenAPlayerArrivesToTheLastTileThenNotEndTheGame [
 			withNumberOfLapsBeing: oneLap.
 
 	self
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(1 1);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo: #(1 1).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(1 1);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo: #(1 1).
 
 	game rollDice. "Sale 2"
 
 	self
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(3 1);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo: #(1 2).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(3 1);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo: #(1 2).
 
 	game rollDice. "Sale 4"
 
 	self
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(3 5);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo: #(2 1).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(3 5);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo: #(2 1).
 
 	game rollDice. "Sale 7"
 
 	self
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(10 5);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo: #(1 2);
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(10 5);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo: #(1 2);
 		assert: game isInProgress ;
 		assert: game winnerOfTheGame equals: (Optional unusedBecause: 'No hay ganador')
 ]
@@ -375,21 +374,21 @@ GameTest >> testWhenAPlayerLandsOnAMoonwalkTileThenMoveAllPlayersExceptCurrentOn
 			withNumberOfLapsBeing: oneLap.
 			
 	self
-		assertCurrentPositionsOf: fourPlayers	from: game historicalPlayerPositions	equalsTo: #(1 1 1 1);
-		assertCurrentRankingsOf: fourPlayers from: game playersRanking equalsTo:#(1 1 1 1);
-		assertCurrentLapsOf: fourPlayers from: game historicalPlayerPositions   equalsTo: #(0 0 0 0).
+		assertCurrentPositionsOf: fourPlayers in: game equalsTo: #(1 1 1 1);
+		assertCurrentRankingsOf: fourPlayers in: game equalsTo:#(1 1 1 1);
+		assertCurrentLapsOf: fourPlayers in: game equalsTo: #(0 0 0 0).
 		
 	1 to: 3 do: [:index | game rollDice]. "Sale 4, 3, 4"
 	self
-		assertCurrentPositionsOf: fourPlayers	from: game historicalPlayerPositions equalsTo: #(5 4 5 1);
-		assertCurrentRankingsOf: fourPlayers from: game playersRanking equalsTo:#(1 3 1 4);
-		assertCurrentLapsOf: fourPlayers from: game historicalPlayerPositions equalsTo: #(0 0 0 0).
+		assertCurrentPositionsOf: fourPlayers in: game equalsTo: #(5 4 5 1);
+		assertCurrentRankingsOf: fourPlayers in: game equalsTo:#(1 3 1 4);
+		assertCurrentLapsOf: fourPlayers in: game equalsTo: #(0 0 0 0).
 		
 	game rollDice. "Sale 2. El 4to jugador cae en Moonwalk tile, el resto de jugadores debe volver para atras 2 lugares"
 	self
-		assertCurrentPositionsOf: fourPlayers	from: game historicalPlayerPositions equalsTo: #(3 2 3 3);
-		assertCurrentRankingsOf: fourPlayers from: game playersRanking equalsTo:#(1 4 1 1);
-		assertCurrentLapsOf: fourPlayers from: game historicalPlayerPositions equalsTo: #(0 0 0 0)
+		assertCurrentPositionsOf: fourPlayers in: game equalsTo: #(3 2 3 3);
+		assertCurrentRankingsOf: fourPlayers in: game equalsTo:#(1 4 1 1);
+		assertCurrentLapsOf: fourPlayers in: game equalsTo: #(0 0 0 0)
 ]
 
 { #category : #tests }
@@ -408,21 +407,21 @@ GameTest >> testWhenAPlayerLandsOnAMoonwalkTileThenMoveAllPlayersExceptCurrentOn
 			and: boardWithMoonwalkTileEffect
 			withNumberOfLapsBeing: threelaps.
 	self
-		assertCurrentPositionsOf: fourPlayers	from: game historicalPlayerPositions equalsTo: #(1 1 1 1);
-		assertCurrentRankingsOf: fourPlayers from: game playersRanking equalsTo:#(1 1 1 1);
-		assertCurrentLapsOf: fourPlayers from: game historicalPlayerPositions equalsTo: #(0 0 0 0).
+		assertCurrentPositionsOf: fourPlayers in: game equalsTo: #(1 1 1 1);
+		assertCurrentRankingsOf: fourPlayers in: game equalsTo:#(1 1 1 1);
+		assertCurrentLapsOf: fourPlayers in: game equalsTo: #(0 0 0 0).
 		
 	1 to: 3 do: [:index | game rollDice]. "Sale 5, 6, 6"
 	self
-		assertCurrentPositionsOf: fourPlayers	from: game historicalPlayerPositions equalsTo: #(6 1 1 1);
-		assertCurrentRankingsOf: fourPlayers from: game playersRanking equalsTo:#(3 1 1 4);
-		assertCurrentLapsOf: fourPlayers from: game historicalPlayerPositions equalsTo: #(0 1 1 0).
+		assertCurrentPositionsOf: fourPlayers in: game equalsTo: #(6 1 1 1);
+		assertCurrentRankingsOf: fourPlayers in: game equalsTo:#(3 1 1 4);
+		assertCurrentLapsOf: fourPlayers in: game equalsTo: #(0 1 1 0).
 		
 	game rollDice. "Sale 2. El 4to jugador cae en Moonwalk tile, el resto de jugadores debe volver para atras 2 lugares"
 	self
-		assertCurrentPositionsOf: fourPlayers	from: game historicalPlayerPositions equalsTo: #(4 5 5 3);
-		assertCurrentRankingsOf: fourPlayers from: game playersRanking equalsTo:#(3 1 1 4);
-		assertCurrentLapsOf: fourPlayers from: game historicalPlayerPositions equalsTo: #(0 0 0 0)
+		assertCurrentPositionsOf: fourPlayers in: game equalsTo: #(4 5 5 3);
+		assertCurrentRankingsOf: fourPlayers in: game equalsTo:#(3 1 1 4);
+		assertCurrentLapsOf: fourPlayers in: game equalsTo: #(0 0 0 0)
 ]
 
 { #category : #tests }
@@ -440,31 +439,27 @@ GameTest >> testWhenAPlayerLandsOnASpeedUpTileAndThePlayerIsInANegativeLapThenMo
 			and: boardWithASpeedUpTileEffect
 			withNumberOfLapsBeing: threelaps.
 	self 
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(1 1);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(1 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions   equalsTo: #(0 0).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(1 1);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(1 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 0).
 		
 	game rollDice. "Sale 2"
 	self 
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(4 1);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(2 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions   equalsTo: #(-1 0).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(4 1);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(2 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(-1 0).
 		
 	game rollDice. "Sale 3"
 	self
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(4 4);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(2 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(-1 0).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(4 4);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(2 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(-1 0).
 		
 	game rollDice. "Sale 1. Caigo en el 5, donde esta el SpeedUp, avanzo 4 posiciones"
 	self
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(4 4);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(1 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(0 0).
-
-
-
-
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(4 4);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(1 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 0).
 ]
 
 { #category : #tests }
@@ -488,52 +483,43 @@ GameTest >> testWhenAPlayerLandsOnASpeedUpTileAndThePlayerIsInANegativeLapThenMo
 			and: boardWithASpeedUpTileEffect
 			withNumberOfLapsBeing: threelaps.
 	self 
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(1 1);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(1 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions   equalsTo: #(0 0).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(1 1);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(1 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 0).
 	
 	game rollDice. "Sale 1"
 	
 	self 
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(8 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions   equalsTo: #(-1 0).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(8 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(-1 0).
 	
 	game rollDice. "Sale 3"
 	
 	self
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(8 4);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(2 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(-1 0).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(8 4);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(2 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(-1 0).
 		
 	game rollDice. "Sale 1. Caigo en el 9, donde esta el otro Wormhole retrocedo 4 posiciones"
 	
 	self
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(5 4);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(2 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(-1 0).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(5 4);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(2 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(-1 0).
 	
 	game rollDice. "Sale 2."
 	
 	self
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(5 6);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(2 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(-1 0).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(5 6);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(2 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(-1 0).
 		
 	game rollDice. "Sale 2. Caigo en el SpeedUp avanzo 4 posiciones"
 	
 	self
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(1 6);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(2 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(0 0).
-		
-		
-	
-	
-	
-
-
-
-
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(1 6);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(2 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 0).	
 ]
 
 { #category : #tests }
@@ -552,22 +538,22 @@ GameTest >> testWhenAPlayerLandsOnASpeedUpTileThenMovePlayerFourPositionsForward
 			withNumberOfLapsBeing: threelaps.
 			
 	self 
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(1 1);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(1 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(0 0).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(1 1);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(1 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 0).
 		
 	game rollDice. "Sale 2"
 	
 	self 
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(3 1);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(1 2);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(0 0).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(3 1);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(1 2);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 0).
 		
 	game rollDice. "Sale 3, cae en el Tile con el SpeedUp, entonces se desplaza 4 casilleros"
 	self
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(3 3);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(2 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(0 1)
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(3 3);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(2 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 1)
 ]
 
 { #category : #tests }
@@ -587,21 +573,21 @@ GameTest >> testWhenAPlayerLandsOnATimeMachineTileEffectAndThereAreNotAnyPreviou
 			withNumberOfLapsBeing: threelaps.
 			
 	self 
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(1 1);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(1 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions   equalsTo: #(0 0).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(1 1);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(1 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 0).
 	
 	game rollDice. "Sale 3"
 	self 
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(4 1);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(1 2);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions   equalsTo: #(0 0).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(4 1);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(1 2);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 0).
 	
 	game rollDice. "Sale 2, cae en un TimeMachine, entonces al no tener turno previo, vuelve al inicio del tablero."
 	self 
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(4 1);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(1 2);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions   equalsTo: #(0 0).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(4 1);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(1 2);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 0).
 ]
 
 { #category : #tests }
@@ -621,27 +607,27 @@ GameTest >> testWhenAPlayerLandsOnATimeMachineTileEffectThenMovePlayerBackToTheP
 			withNumberOfLapsBeing: threelaps.
 			
 	self 
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(1 1);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(1 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions   equalsTo: #(0 0).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(1 1);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(1 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 0).
 		
 	game rollDice. "Sale 2"
 	self 
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(3 1);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(1 2);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions   equalsTo: #(0 0).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(3 1);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(1 2);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 0).
 		
 	game rollDice. "Sale 3"
 	self
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(3 4);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(2 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(0 0).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(3 4);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(2 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 0).
 		
 	game rollDice. "Sale 2, caes en el TimeMachine, vuelve al turno anterior."
 	self
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(1 4);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(2 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(0 0)
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(1 4);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(2 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 0)
 ]
 
 { #category : #tests }
@@ -660,15 +646,15 @@ GameTest >> testWhenAPlayerLandsOnAWormholeTileNearTheStartOfTheBoardOnTheFirstL
 			withNumberOfLapsBeing: threelaps.
 			
 	self 
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(1 1);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(1 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions   equalsTo: #(0 0).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(1 1);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(1 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 0).
 	
 	game rollDice. "Sale 2"
 	self
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(5 1);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(2 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(-1 0)
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(5 1);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(2 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(-1 0)
 ]
 
 { #category : #tests }
@@ -687,27 +673,27 @@ GameTest >> testWhenAPlayerLandsOnAWormholeTileNearTheStartOfTheBoardThenMovePla
 			withNumberOfLapsBeing: threelaps.
 			
 	self 
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(1 1);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(1 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions   equalsTo: #(0 0).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(1 1);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(1 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 0).
 	
 	1 to: 3 do: [:index | game rollDice]. "Sale 3, 4, 4"
 	self
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(2 5);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(1 2);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(1 0).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(2 5);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(1 2);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(1 0).
 		
 	game rollDice. "Sale 3"
 	self
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(2 2);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(1 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(1 1).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(2 2);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(1 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(1 1).
 		
 	game rollDice. "Sale 1"
 	self
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(5 2);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(2 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(0 1)
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(5 2);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(2 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 1)
 ]
 
 { #category : #tests }
@@ -726,21 +712,21 @@ GameTest >> testWhenAPlayerLandsOnAWormholeTileThenMovePlayerFourPositionsBackwa
 			withNumberOfLapsBeing: threelaps.
 			
 	self 
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(1 1);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(1 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions   equalsTo: #(0 0).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(1 1);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(1 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 0).
 	
 	game rollDice. "Sale 2"
 	self 
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(3 1);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(1 2);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions   equalsTo: #(0 0).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(3 1);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(1 2);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 0).
 	
 	game rollDice. "Sale 4, cae en el Tile con el Wormhole, entonces se desplaza 4 casilleros hacia atras"
 	self
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(3 1);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(1 2);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(0 0)
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(3 1);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(1 2);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 0)
 ]
 
 { #category : #tests }
@@ -759,21 +745,21 @@ GameTest >> testWhenAPlayerLandsOnAnAtomicBombTileAndAllPlayersAreInDifferentLap
 			and: boardWithAtomicBombInTileNumberFour
 			withNumberOfLapsBeing: threelaps.
 	self
-		assertCurrentPositionsOf: fourPlayers	from: game historicalPlayerPositions equalsTo: #(1 1 1 1);
-		assertCurrentRankingsOf: fourPlayers from: game playersRanking equalsTo:#(1 1 1 1);
-		assertCurrentLapsOf: fourPlayers from: game historicalPlayerPositions equalsTo: #(0 0 0 0).
+		assertCurrentPositionsOf: fourPlayers in: game equalsTo: #(1 1 1 1);
+		assertCurrentRankingsOf: fourPlayers in: game equalsTo:#(1 1 1 1);
+		assertCurrentLapsOf: fourPlayers in: game equalsTo: #(0 0 0 0).
 		
 	1 to: 4 do: [:index | game rollDice]. "Sale 2 , 5 , 4 , 6"
 	self
-		assertCurrentPositionsOf: fourPlayers	from: game historicalPlayerPositions	equalsTo: #(3 1 5 2);
-		assertCurrentRankingsOf: fourPlayers from: game playersRanking equalsTo:#(4 2 3 1);
-		assertCurrentLapsOf: fourPlayers from: game historicalPlayerPositions equalsTo: #(0 1 0 1).
+		assertCurrentPositionsOf: fourPlayers in: game equalsTo: #(3 1 5 2);
+		assertCurrentRankingsOf: fourPlayers in: game equalsTo:#(4 2 3 1);
+		assertCurrentLapsOf: fourPlayers in: game equalsTo: #(0 1 0 1).
 		
 	game rollDice. "Sale un 1, al querer ir a la casilla 4, como en la misma esta el efecto Atomic Bomb. Todos vuelven al origen del tablero."
 	self
-		assertCurrentPositionsOf: fourPlayers	from: game historicalPlayerPositions equalsTo: #(1 1 1 1);
-		assertCurrentRankingsOf: fourPlayers from: game playersRanking equalsTo: #(3 1 3 1);
-		assertCurrentLapsOf: fourPlayers from: game historicalPlayerPositions equalsTo: #(0 1 0 1)
+		assertCurrentPositionsOf: fourPlayers in: game equalsTo: #(1 1 1 1);
+		assertCurrentRankingsOf: fourPlayers in: game equalsTo: #(3 1 3 1);
+		assertCurrentLapsOf: fourPlayers in: game equalsTo: #(0 1 0 1)
 ]
 
 { #category : #tests }
@@ -793,21 +779,21 @@ GameTest >> testWhenAPlayerLandsOnAnAtomicBombTileAndAllPlayersAreInTheSameLapTh
 			and: boardWithAtomicBombInTileNumberFour
 			withNumberOfLapsBeing: threelaps.
 	self
-		assertCurrentPositionsOf: fourPlayers	from: game historicalPlayerPositions equalsTo: #(1 1 1 1);
-		assertCurrentRankingsOf: fourPlayers from: game playersRanking equalsTo:#(1 1 1 1);
-		assertCurrentLapsOf: fourPlayers from: game historicalPlayerPositions equalsTo: #(0 0 0 0).
+		assertCurrentPositionsOf: fourPlayers in: game equalsTo: #(1 1 1 1);
+		assertCurrentRankingsOf: fourPlayers in: game equalsTo:#(1 1 1 1);
+		assertCurrentLapsOf: fourPlayers in: game equalsTo: #(0 0 0 0).
 		
 	1 to: 4 do: [:index | game rollDice]. "Sale 2 , 1 , 5 , 4"
 	self
-		assertCurrentPositionsOf: fourPlayers	from: game historicalPlayerPositions equalsTo: #(3 2 6 5);
-		assertCurrentRankingsOf: fourPlayers from: game playersRanking equalsTo:#(3 4 1 2);
-		assertCurrentLapsOf: fourPlayers from: game historicalPlayerPositions equalsTo: #(0 0 0 0).
+		assertCurrentPositionsOf: fourPlayers in: game equalsTo: #(3 2 6 5);
+		assertCurrentRankingsOf: fourPlayers in: game equalsTo:#(3 4 1 2);
+		assertCurrentLapsOf: fourPlayers in: game equalsTo: #(0 0 0 0).
 		
 	game rollDice. "Sale un 1, al querer ir a la casilla 4, como en la misma esta el efecto Atomic Bomb. Todos vuelven al origen del tablero."
 	self
-		assertCurrentPositionsOf: fourPlayers	from: game historicalPlayerPositions	equalsTo: #(1 1 1 1);
-		assertCurrentRankingsOf: fourPlayers from: game playersRanking equalsTo: #(1 1 1 1);
-		assertCurrentLapsOf: fourPlayers from: game historicalPlayerPositions equalsTo: #(0 0 0 0).
+		assertCurrentPositionsOf: fourPlayers in: game equalsTo: #(1 1 1 1);
+		assertCurrentRankingsOf: fourPlayers in: game equalsTo: #(1 1 1 1);
+		assertCurrentLapsOf: fourPlayers in: game equalsTo: #(0 0 0 0)
 ]
 
 { #category : #tests }
@@ -826,25 +812,23 @@ GameTest >> testWhenAPlayerLandsOnAnEmptyTileEffectThenContinueWithNextTurnBecau
 			withNumberOfLapsBeing: threelaps.
 
 	self 
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(1 1);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(1 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(0 0).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(1 1);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(1 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 0).
 
 	game rollDice. "Sale 2"
 
 	self 
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(3 1);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(1 2);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(0 0).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(3 1);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(1 2);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 0).
 
 	game rollDice. "Sale un 3"
 
 	self 
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(3 4);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(2 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(0 0).
-
-
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(3 4);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(2 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 0)
 ]
 
 { #category : #tests }
@@ -865,22 +849,19 @@ GameTest >> testWhenAPlayerWinsTheGameAndAnotherPlayerTriesToRollDiceThenRaiseAs
 			withNumberOfLapsBeing: oneLap.
 
 	self 
-		assertCurrentPositionsOf: twoPlayers from: game historicalPlayerPositions equalsTo: #(1 1);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo:#(1 1);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions   equalsTo: #(0 0).
+		assertCurrentPositionsOf: twoPlayers in: game equalsTo: #(1 1);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo:#(1 1);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 0).
 
 	[game isInProgress] whileTrue: [game rollDice].
 
 	self
-		assertCurrentPositionsOf: twoPlayers	from: game historicalPlayerPositions equalsTo: #(20 12);
-		assertCurrentRankingsOf: twoPlayers from: game playersRanking equalsTo: #(1 2);
-		assertCurrentLapsOf: twoPlayers from: game historicalPlayerPositions   equalsTo: #(0 0);
+		assertCurrentPositionsOf: twoPlayers	in: game equalsTo: #(20 12);
+		assertCurrentRankingsOf: twoPlayers in: game equalsTo: #(1 2);
+		assertCurrentLapsOf: twoPlayers in: game equalsTo: #(0 0);
 		assert: game hasEnded;
 		assert: game winnerOfTheGame equals: twoPlayers first;
 		should: [game rollDice]
 			raise: AssertionFailed
 			withMessageText: 'Cannot roll dice because the game is over.'
-
-
-
 ]
