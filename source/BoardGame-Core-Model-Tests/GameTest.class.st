@@ -15,36 +15,45 @@ Class {
 }
 
 { #category : #'private - asserting' }
-GameTest >> assertCurrentLapsOf: aPlayerCollection in: aGame equalsTo: aListOfLapsNumber [
+GameTest >> assertCurrentLapsOf: aPlayerCollection in: aGame equalsTo: aLapNumberCollection [
 
-	aPlayerCollection
-		with: aListOfLapsNumber
-		do: [ :aPlayer :aPlayerPositionNumber | 
-			self
-				assert: (aGame currentLapOf: aPlayer)
-				equals: aPlayerPositionNumber ]
+	^ self
+		  for: aPlayerCollection
+		  in: aGame
+		  assert: [ :game :player | game currentLapOf: player ]
+		  equalsTo: aLapNumberCollection
 ]
 
 { #category : #'private - asserting' }
-GameTest >> assertCurrentPositionsOf: aPlayerCollection in: aGame equalsTo: aListOfPositions [
+GameTest >> assertCurrentPositionsOf: aPlayerCollection in: aGame equalsTo: aPositionCollection [
 
-	aPlayerCollection
-		with: aListOfPositions
-		do: [:aPlayer :aPlayerPositionNumber |
-			self
-				assert: (aGame currentPlayerPositionOf: aPlayer) tileNumber
-				equals: aPlayerPositionNumber]
+	^ self
+		  for: aPlayerCollection
+		  in: aGame
+		  assert: [ :game :player | (game currentPlayerPositionOf: player) tileNumber]
+		  equalsTo: aPositionCollection
+
 ]
 
 { #category : #'private - asserting' }
-GameTest >> assertCurrentRankingsOf: aPlayerCollection in: aGame equalsTo: aListOfRankings [
+GameTest >> assertCurrentRankingsOf: aPlayerCollection in: aGame equalsTo: aRankingCollection [
 
-	aPlayerCollection
-		with: aListOfRankings
-		do: [ :aPlayer :aPlayerRankingNumber | 
-			self
-				assert: (aGame currentRankingOf: aPlayer)
-				equals: aPlayerRankingNumber ]
+	^ self
+		  for: aPlayerCollection
+		  in: aGame
+		  assert: [ :game :player | game currentRankingOf: player ]
+		  equalsTo: aRankingCollection
+]
+
+{ #category : #'private - asserting' }
+GameTest >> for: aPlayerCollection in: aGame assert: aPerformBlock equalsTo: anObjectCollection [
+
+	^ aPlayerCollection
+		  with: anObjectCollection
+		  do: [ :aPlayer :aPlayerRankingNumber | 
+			  self
+				  assert: (aPerformBlock value: aGame value: aPlayer)
+				  equals: aPlayerRankingNumber ]
 ]
 
 { #category : #'private - generating' }
