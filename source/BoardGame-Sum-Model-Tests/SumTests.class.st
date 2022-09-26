@@ -5,12 +5,18 @@ Class {
 }
 
 { #category : #tests }
-SumTests >> testCollecting [
+SumTests >> testCreateASum [
+
+	|sum numberCollection|
+	
+	numberCollection := #( 1 2 3 4 ).
+	
+	sum := (Sum collecting: [ :number | number + 1 ] ofAll: numberCollection).
 
 	self
-		assert:
-		(Sum collecting: [ :number | number + 1 ] ofAll: #( 1 2 3 4 )) value
-		equals: 14
+		assert: sum value equals: 14;
+		assert: sum typeDescription equals: 'Sumatoria';
+		assert: sum operands equals: (OrderedCollection with: 3 with: 4 with: 5)
 ]
 
 { #category : #tests }

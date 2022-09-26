@@ -39,13 +39,26 @@ GameStateTest >> setUp [
 { #category : #tests }
 GameStateTest >> testHasGameStateEnded [
 
-	self assert: EndedState newGameState hasEnded
+	|endedState|
+	
+	endedState := EndedState newGameState.
+	
+	self 
+		assert: endedState hasEnded;
+		deny: endedState isInProgress
+		
 ]
 
 { #category : #tests }
 GameStateTest >> testIsGameStateInProgress [
 
-	self assert: InProgressState newGameState isInProgress
+	|inProgressState|
+	
+	inProgressState := InProgressState newGameState.
+
+	self 
+		assert: inProgressState isInProgress;
+		deny: inProgressState hasEnded
 ]
 
 { #category : #tests }

@@ -5,6 +5,42 @@ Class {
 }
 
 { #category : #tests }
+TileEffectTest >> testCreateAMoonwalkTileEffect [
+
+	| tileEffect |
+
+	tileEffect := MoonwalkTileEffect newEffectUsing: 4.
+
+	self 
+		assert: (tileEffect isA: MoonwalkTileEffect);
+		assert: tileEffect numberOfTiles equals: 4
+]
+
+{ #category : #tests }
+TileEffectTest >> testCreateASpeedUpTileEffect [
+
+	| tileEffect |
+
+	tileEffect := SpeedUpTileEffect newEffect.
+
+	self 
+		assert: (tileEffect isA: SpeedUpTileEffect);
+		assert: tileEffect numberOfTiles equals: 4
+]
+
+{ #category : #tests }
+TileEffectTest >> testCreateAWormholeTileEffect [
+
+	| tileEffect |
+
+	tileEffect := WormholeTileEffect newEffect.
+
+	self 
+		assert: (tileEffect isA: WormholeTileEffect);
+		assert: tileEffect numberOfTiles equals: 4
+]
+
+{ #category : #tests }
 TileEffectTest >> testCreateAnAtomicBombTileEffect [
 
 	| tileEffect |
